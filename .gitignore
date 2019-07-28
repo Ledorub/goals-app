@@ -1,0 +1,25 @@
+# Pycharm
+.idea/
+
+# Python
+*.py[cod]
+
+# VEnv
+Scripts/
+pyvenv.cfg
+
+# Django
+__pycache__
+*.sqlite3
+
+# Project
+*.rtf
+goals_project/secret.py
+
+# goals_app
+goals_app/icons
+goals_app/images
+goals_app/*[.mdj, .xd]
+
+# Packaging
+Lib/
