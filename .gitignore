@@ -5,6 +5,7 @@
 *.py[cod]
 
 # VEnv
+.venv/
 Scripts/
 pyvenv.cfg
 
@@ -20,6 +21,7 @@ goals_project/secret.py
 goals_app/icons
 goals_app/images
 goals_app/*[.mdj, .xd]
+goals_app/debug*
 
 # Packaging
 Lib/
