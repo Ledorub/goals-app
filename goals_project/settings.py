@@ -82,6 +82,9 @@ DATABASES = {
         'NAME': 'goals_app_db',
         'USER': secret.DB_USER,
         'PASSWORD': secret.DB_PASS,
+        'TEST': {
+            'NAME': 'test_db'
+        }
     }
 }
 

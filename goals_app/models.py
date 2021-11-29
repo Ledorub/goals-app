@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, UserManager
-from django.core import validators
+from django.core import exceptions, validators
 from django.db import models
 from django.utils.translation import ngettext_lazy
 import jwt
@@ -10,9 +10,10 @@ from secrets import token_urlsafe
 
 
 class CapitalizedCharField(models.CharField):
-    def get_prep_value(self, value):
-        print(value)
-        return value.capitalize()
+    def pre_save(self, model_instance, add):
+        value = getattr(model_instance, self.attname).capitalize()
+        setattr(model_instance, self.attname, value)
+        return value
 
 
 class CustomUserManager(UserManager):
@@ -101,7 +102,9 @@ class User(AbstractUser):  # TODO: Check that username is required during the re
 
 class TaskTemplate(models.Model):
     todo = CapitalizedCharField(max_length=100)  # TODO: Change to title
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    creator = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='tasks'
+    )
     start_date = models.DateField(default=date.today)
     finish_date = models.DateField()
     is_achieved = models.BooleanField(default=False)
@@ -111,6 +114,19 @@ class TaskTemplate(models.Model):
 
     def __str__(self):
         return self.todo
+
+    def clean(self):
+        fields = self._meta.fields
+        for field in fields:
+            clean_method = getattr(self, f'clean_{field.name}', None)
+            if clean_method:
+                value = getattr(self, field.name)
+                setattr(self, field.name, clean_method(value))
+
+        if self.finish_date < self.start_date:
+            raise exceptions.ValidationError(
+                'finish_date should not be less than start_date'
+            )
 
 
 class TaskManager(models.Manager):
@@ -130,7 +146,7 @@ class Task(TaskTemplate):  # TODO: Add counter field.
 
     reason = CapitalizedCharField(max_length=200)   # TODO: Make optional.
     category = models.ForeignKey(
-        'Category', on_delete=models.SET_NULL, null=True, related_name='goals'
+        'Category', on_delete=models.SET_NULL, null=True, related_name='tasks'
     )
     parent = models.ForeignKey(
         'self', on_delete=models.CASCADE, related_name='subtasks',
@@ -138,6 +154,7 @@ class Task(TaskTemplate):  # TODO: Add counter field.
     )
 
     def save(self, *args, **kwargs):
+        self.full_clean()
         if max_recursion_depth_exceeded(self, 'parent', 2):
             raise RecursionError('Maximum subtask nesting depth exceeded.')
         return super().save(*args, **kwargs)
@@ -182,8 +199,7 @@ class RefreshToken(models.Model):
 
     def clean(self):
         super().clean()
-        if not self.token:
-            self.token = self._generate_token()
+        self.token = self._generate_token()
 
     def save(self, *args, **kwargs):
         self.full_clean()
