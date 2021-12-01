@@ -149,3 +149,6 @@ REST_FRAMEWORK = {
         'goals_app.backends.JWTAuthentication',
     )
 }
+
+# Celery
+CELERY_BROKER_URL = 'redis://localhost:6379'

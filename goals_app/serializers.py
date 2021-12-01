@@ -61,8 +61,15 @@ class TokenFieldsMixin(metaclass=FieldMixinMetaclass):
     refresh_token = TokenField()
 
 
+class CounterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Counter
+        fields = '__all__'
+
+
 class TaskSerializer(serializers.ModelSerializer):
     category = serializers.CharField(max_length=30, source='category.name')
+    counter = CounterSerializer()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -84,7 +91,7 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Task
         fields = ('todo', 'start_date', 'finish_date', 'is_achieved', 'reason',
-                  'category')
+                  'category', 'counter')
 
 
 class LoginSerializer(AuthFieldsMixin, TokenFieldsMixin, serializers.Serializer):
@@ -160,5 +167,3 @@ class TokensSerializer(TokenFieldsMixin, serializers.ModelSerializer):
                 'Refresh token is not valid.'
             )
         token.invalidate()
-
-

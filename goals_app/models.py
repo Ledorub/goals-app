@@ -108,6 +108,7 @@ class TaskTemplate(models.Model):
     start_date = models.DateField(default=date.today)
     finish_date = models.DateField()
     is_achieved = models.BooleanField(default=False)
+    is_expired = models.BooleanField(default=False)
 
     class Meta:
         abstract = True
@@ -157,6 +158,11 @@ class Task(TaskTemplate):  # TODO: Add counter field.
         self.full_clean()
         if max_recursion_depth_exceeded(self, 'parent', 2):
             raise RecursionError('Maximum subtask nesting depth exceeded.')
+
+        if hasattr(self, 'counter'):
+            if self.counter.done:
+                self.is_achieved = True
+
         return super().save(*args, **kwargs)
 
 
@@ -175,6 +181,9 @@ class Category(models.Model):
 
 
 class Counter(models.Model):
+    task = models.OneToOneField(
+        'Task', on_delete=models.CASCADE, related_name='counter'
+    )
     value = models.DecimalField(max_digits=12, decimal_places=2)
     target = models.DecimalField(max_digits=12, decimal_places=2)
     countable = models.CharField(max_length=30)
@@ -185,7 +194,18 @@ class Counter(models.Model):
 
     @property
     def done(self):
-        return self.value == self.target
+        return self.value >= self.target
+
+    def clean(self):
+        super().clean()
+        if not (self.pk or self.done):
+            raise exceptions.ValidationError(
+                'Counter value should be less than target value.'
+            )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
 
 class RefreshToken(models.Model):
