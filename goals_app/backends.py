@@ -5,36 +5,33 @@ from django.conf import settings
 from rest_framework import authentication
 from rest_framework.exceptions import AuthenticationFailed
 
-from goals_app.models import User
+from goals_app.models import User, CSRFToken
 
 
 class JWTAuthentication(authentication.BaseAuthentication):
-    authorization_header_prefix = 'Bearer'
-
     def authenticate(self, request):
-        auth_header = authentication.get_authorization_header(request).split()
-
-        if not auth_header:
+        # If password in data, proceed to username:password authentication.
+        if 'password' in request.data:
             return None
 
-        if len(auth_header) != 2:
-            return None
+        access_token = request.COOKIES.get('access_token', None)
+        csrf_token = request.headers.get('X-XSRF-TOKEN', None)
 
-        prefix = auth_header[0].decode()
-        token = auth_header[1]
+        if not access_token:
+            AuthenticationFailed('No token was provided')
 
-        if prefix.lower() != self.authorization_header_prefix.lower():
-            return None
+        return self._authenticate_credentials(access_token, csrf_token)
 
-        return self._authenticate_credentials(token)
-
-    def _authenticate_credentials(self, token):
+    def _authenticate_credentials(self, access_token, csrf_token):
         try:
-            payload = jwt.decode(
-                token, settings.SECRET_KEY, settings.JWT_SIGNING_ALGORITHM
+            payload = decode_access_token(access_token)
+        except (ValueError, PyJWTError):
+            raise AuthenticationFailed('Provided tokens are invalid.')
+
+        if payload['csrf'] != csrf_token:
+            raise AuthenticationFailed(
+                'Provided tokens are invalid.'
             )
-        except PyJWTError:
-            raise AuthenticationFailed('Could not decode token.')
 
         try:
             user = User.objects.get(pk=payload['id'])
@@ -48,4 +45,26 @@ class JWTAuthentication(authentication.BaseAuthentication):
                 'Account has been deactivated or has not been activated yet.'
             )
 
-        return user, token
+        try:
+            user.csrf_tokens.get(token=csrf_token)
+        except CSRFToken.DoesNotExist:
+            raise AuthenticationFailed(
+                'Provided tokens are invalid.'
+            )
+
+        return user, access_token
+
+
+def decode_access_token(token):
+    token = token.split()
+    if len(token) != 2:
+        raise ValueError('Invalid token')
+
+    prefix = token[0]
+    if prefix != settings.AUTHORIZATION_TOKEN_PREFIX:
+        raise ValueError('Invalid token')
+
+    token = token[1]
+    return jwt.decode(
+        token, settings.SECRET_KEY, settings.JWT_SIGNING_ALGORITHM
+    )

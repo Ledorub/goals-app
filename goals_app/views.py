@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.urls import reverse
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -9,7 +11,7 @@ from goals_app import serializers
 
 class RegistrationView(generics.CreateAPIView):
     queryset = models.User.objects.all()
-    serializer_class = serializers.UserWithTokensSerializer
+    serializer_class = serializers.UserSerializer
     renderer_classes = [UserJSONRenderer]
 
 
@@ -19,7 +21,11 @@ class LoginView(APIView):
 
     def post(self, request):
         data = self.login(data=request.data)
-        return Response(data, status=status.HTTP_200_OK)
+        user = models.User.objects.get(email=data['email'])
+
+        response = Response(data, status=status.HTTP_200_OK)
+        add_tokens_to_response(response, user)
+        return response
 
     def login(self, data):
         serializer = self.serializer_class(data=data)
@@ -51,12 +57,54 @@ class TaskViewSet(viewsets.ModelViewSet):
         }
 
 
-class TokenRefreshView(generics.CreateAPIView):
+class TokenRefreshView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = serializers.TokensSerializer
-    renderer_classes = [UserJSONRenderer]
 
-    def get_serializer_context(self):
-        return {
-            'user': self.request.user
-        }
+    def get(self, request):
+        refresh_token = request.COOKIES.get('refresh_token', None)
+        user = request.user
+
+        if not refresh_token:
+            pass
+
+        is_token_valid = self.validate_refresh_token(user, refresh_token)
+        if not is_token_valid:
+            pass
+
+        response = Response(status=status.HTTP_200_OK)
+        add_tokens_to_response(response, user)
+        return response
+
+    def post(self, request):
+        return self.get(request)
+
+    def validate_refresh_token(self, user, value):
+        try:
+            token = user.refresh_tokens.get(token=value)
+        except models.RefreshToken.DoesNotExist:
+            raise serializers.ValidationError(
+                'Refresh token is not valid.'
+            )
+        token.invalidate()
+
+
+def add_tokens_to_response(response, user):
+    tokens = user.generate_tokens()
+
+    response.set_cookie(
+        key='access_token',
+        value=tokens['access_token'],
+        max_age=settings.JWT_LIFESPAN / 1000,
+        # secure=True,
+        httponly=True,
+        samesite='strict'
+    )
+    response.set_cookie(
+        key='refresh_token',
+        value=tokens['refresh_token'],
+        path=reverse('goals-app:refresh-token'),
+        # secure=True,
+        httponly=True,
+        samesite='strict'
+    )
+    response.headers['X-XSRF-TOKEN'] = tokens['csrf_token']

@@ -52,27 +52,53 @@ class User(AbstractUser):  # TODO: Check that username is required during the re
     def __str__(self):
         return self.username
 
-    @property
-    def access_token(self):
+    def generate_tokens(self):
         """
-        Returns new access token on every invocation.
+        Generates new tokens on every invocation.
+        :return: Access, refresh, and CSRF tokens.
         """
-        return self._generate_access_token()
+        csrf_token = self.generate_csrf_token().token
+        return {
+            'access_token': self.generate_access_token(csrf_token),
+            'refresh_token': self.generate_refresh_token(),
+            'csrf_token': csrf_token
+        }
 
-    def _generate_access_token(self):
-        dt = datetime.now() + timedelta(minutes=settings.JWT_LIFESPAN)
+    def generate_access_token(self, csrf_token=None):
+        """
+        Generates new token on every invocation.
+        :return: Access token.
+        """
+        return self._generate_access_token(csrf_token)
+
+    def _generate_access_token(self, csrf_token=None):
+        dt = datetime.now() + timedelta(milliseconds=settings.JWT_LIFESPAN)
         token = jwt.encode({
             'id': self.pk,
-            'exp': dt.timestamp()
+            'exp': dt.timestamp(),
+            'csrf': csrf_token or self.generate_csrf_token().token
         }, settings.SECRET_KEY, settings.JWT_SIGNING_ALGORITHM)
         return f'Bearer {token}'
 
-    @property
-    def refresh_token(self):
+    def generate_refresh_token(self):
+        """
+        Generates new token on every invocation.
+        :return: Refresh token.
+        """
         return self._generate_refresh_token()
 
     def _generate_refresh_token(self):
         return RefreshToken.objects.create(user=self)
+
+    def generate_csrf_token(self):
+        """
+        Generates new token on every invocation.
+        :return: CSRF token.
+        """
+        return self._generate_csrf_token()
+
+    def _generate_csrf_token(self):
+        return CSRFToken.objects.create(user=self)
 
     def set_password(self, raw_password):
         """
@@ -208,11 +234,11 @@ class Counter(models.Model):
         return super().save(*args, **kwargs)
 
 
-class RefreshToken(models.Model):
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='refresh_tokens'
-    )
+class Token(models.Model):
     token = models.CharField(max_length=128, blank=True)
+
+    class Meta:
+        abstract = True
 
     def __str__(self):
         return self.token
@@ -230,6 +256,18 @@ class RefreshToken(models.Model):
 
     def invalidate(self):
         self.delete()
+
+
+class RefreshToken(Token):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='refresh_tokens'
+    )
+
+
+class CSRFToken(Token):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='csrf_tokens'
+    )
 
 
 def max_recursion_depth_exceeded(instance, parent_attr_name, max_depth):

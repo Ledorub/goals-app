@@ -8,21 +8,22 @@ task_list = views.TaskViewSet.as_view({
     'post': 'create'
 })
 
+AUTH_PREFIX = 'auth/'
 
 app_name = 'goals-app'
 urlpatterns = [
     path(
-        'auth/sign-in/',  # TODO: fix redirect to /accounts/profile
+        f'{AUTH_PREFIX}sign-in/',  # TODO: fix redirect to /accounts/profile
         views.LoginView.as_view(),
         name='sign-in'
     ),
     path(
-        'auth/sign-up/',
+        f'{AUTH_PREFIX}sign-up/',
         views.RegistrationView.as_view(),
         name='sign-up'
     ),
     path(
-        'auth/refresh-token/',
+        f'{AUTH_PREFIX}refresh-token/',
         views.TokenRefreshView.as_view(),
         name='refresh-token'
     ),

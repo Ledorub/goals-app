@@ -7,6 +7,10 @@ from django.conf import settings
 from django.core import exceptions
 
 from goals_app import models
+from goals_app.backends import decode_access_token
+
+# Redis server should be running.
+# Otherwise pytest will hang silently.
 
 
 @pytest.mark.usefixtures(
@@ -48,18 +52,21 @@ class TestUserModel:
         email = self.user.email
         models.User.objects.get_by_natural_key(email)
 
-    def test_new_access_token_on_every_call(self):
-        first_token = self.user.access_token
-
-        # Tokens genereated for the same user at the same time will be equal.
-        # So, sleep a bit.
-        time.sleep(0.001)
-
-        second_token = self.user.access_token
-        assert first_token != second_token
+    def test_new_access_token_on_every_call(self, db):
+        assert self.user.generate_access_token() != self.user.generate_access_token()
 
     def test_new_refresh_token_on_every_call(self, db):
-        assert self.user.refresh_token != self.user.refresh_token
+        assert self.user.generate_refresh_token() != self.user.generate_refresh_token()
+
+    def test_generate_token_returns_access_refresh_csrf_tokens(self, db):
+        token_names = ['access_token', 'refresh_token', 'csrf_token']
+        tokens = self.user.generate_tokens()
+        assert all(token_name in tokens for token_name in token_names)
+
+    def test_access_token_contains_csrf_token(self, db):
+        tokens = self.user.generate_tokens()
+        access_token_payload = decode_access_token(tokens['access_token'])
+        assert tokens['csrf_token'] == access_token_payload['csrf']
 
 
 @pytest.mark.usefixtures(

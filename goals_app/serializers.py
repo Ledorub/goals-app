@@ -6,15 +6,6 @@ from rest_framework import serializers
 from goals_app import models
 
 
-class TokenField(serializers.CharField):
-    def __init__(self, **kwargs):
-        read_only = kwargs.pop('read_only', True)
-        super().__init__(max_length=255, read_only=read_only, **kwargs)
-
-    def __repr__(self):
-        return super().__repr__()
-
-
 class PasswordField(serializers.CharField):
     def __init__(self, **kwargs):
         super().__init__(
@@ -56,11 +47,6 @@ class AuthFieldsMixin(metaclass=FieldMixinMetaclass):
         return value
 
 
-class TokenFieldsMixin(metaclass=FieldMixinMetaclass):
-    access_token = TokenField()
-    refresh_token = TokenField()
-
-
 class CounterSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Counter
@@ -94,7 +80,7 @@ class TaskSerializer(serializers.ModelSerializer):
                   'category', 'counter')
 
 
-class LoginSerializer(AuthFieldsMixin, TokenFieldsMixin, serializers.Serializer):
+class LoginSerializer(AuthFieldsMixin, serializers.Serializer):
     email = serializers.CharField(max_length=254, read_only=True)  # TODO: Remove RO after USERNAME_FIELD change.
 
     def validate(self, attrs):
@@ -118,52 +104,18 @@ class LoginSerializer(AuthFieldsMixin, TokenFieldsMixin, serializers.Serializer)
         return super().is_valid(raise_exception)
 
     def to_representation(self, instance):
-        return UserWithTokensSerializer(instance).data
+        return UserSerializer(instance).data
 
 
-class UserWithTokensSerializer(AuthFieldsMixin,
-                               TokenFieldsMixin,
-                               serializers.ModelSerializer):
+class UserSerializer(AuthFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = models.User
         fields = (
-            'email', 'username', 'password', 'first_name', 'last_name',
-            'access_token', 'refresh_token'
+            'email', 'username', 'password', 'first_name', 'last_name'
         )
-
-
-class UserSerializer(UserWithTokensSerializer):
-    def __init__(self, *args, **kwargs):
-        for field in TokenFieldsMixin.get_own_fields():
-            self.fields.pop(field)
-        super().__init__(*args, **kwargs)
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
         if password:
             instance.set_password(password)
         return super().update(instance, validated_data)
-
-
-class TokensSerializer(TokenFieldsMixin, serializers.ModelSerializer):
-    refresh_token = TokenField(read_only=False)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user = self.context.get('user', None)
-
-    class Meta:
-        model = models.User
-        fields = ('access_token', 'refresh_token')
-
-    def create(self, validated_data):
-        return self.user
-
-    def validate_refresh_token(self, value):
-        try:
-            token = self.user.refresh_tokens.get(token=value)
-        except models.RefreshToken.DoesNotExist:
-            raise serializers.ValidationError(
-                'Refresh token is not valid.'
-            )
-        token.invalidate()
