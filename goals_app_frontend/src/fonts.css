@@ -1,0 +1,9 @@
+@font-face {
+    font-family: "Microsoft New Tai Lue";
+    src: url("//db.onlinewebfonts.com/t/58448bc8344e86403c7ad25b3509965f.eot");
+    src: url("//db.onlinewebfonts.com/t/58448bc8344e86403c7ad25b3509965f.eot?#iefix") format("embedded-opentype"),
+    url("//db.onlinewebfonts.com/t/58448bc8344e86403c7ad25b3509965f.woff2") format("woff2"),
+    url("//db.onlinewebfonts.com/t/58448bc8344e86403c7ad25b3509965f.woff") format("woff"),
+    url("//db.onlinewebfonts.com/t/58448bc8344e86403c7ad25b3509965f.ttf") format("truetype"),
+    url("//db.onlinewebfonts.com/t/58448bc8344e86403c7ad25b3509965f.svg#Microsoft New Tai Lue") format("svg");
+}

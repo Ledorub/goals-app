@@ -1,0 +1,19 @@
+.form__fields {
+    display: flex;
+    flex-direction: column;
+    border: none;
+    min-width: 0;
+}
+
+.form__fields label {
+    margin-bottom: 1em;
+}
+
+.form__name {
+    font-size: var(--font-size-l);
+    margin: 0 auto;
+}
+
+.form__name::first-letter {
+    color: var(--accent-color);
+}

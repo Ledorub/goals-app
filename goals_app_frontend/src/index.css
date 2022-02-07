@@ -1,0 +1,57 @@
+@import 'reset.css';
+@import 'fonts.css';
+@import 'components/switch/switch.css';
+@import 'components/task-list/task-list.css';
+@import "components/task-item/task-item.css";
+@import "components/pop-up/pop-up.css";
+@import "components/form/form.css";
+@import "components/formInput/form-input.css";
+@import "components/button/button.css";
+@import "components/button-anchor/button-anchor.css";
+
+
+*,
+::before,
+::after {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+:root {
+    --accent-color: #9BE0DB;
+    --error-color: #FF7276;
+
+    --primary-font-color: #707070;
+    --secondary-font-color: #989898;
+
+    --font-size-default: 22px;
+    --font-size-s: calc(var(--font-size-default) / 1.22);
+    --font-size-m: var(--font-size-default);
+    --font-size-l: calc(var(--font-size-default) * 1.27);
+
+    --space-default: 16px;
+    --space-xs: calc(var(--space-s) / 2);
+    --space-s: calc(var(--space-default) / 2);
+    --space-m: var(--space-default);
+    --space-l: calc(var(--space-m) * 2);
+    --space-xl: calc(var(--space-l) * 2);
+    --space-stack-default: 0 0 var(--space-default) 0;
+    --space-stack-xs: 0 0 var(--space-xs) 0;
+    --space-stack-s: 0 0 var(--space-s) 0;
+    --space-stack-m: 0 0 var(--space-m) 0;
+    --space-stack-l: 0 0 var(--space-l) 0;
+    --space-stack-xl: 0 0 var(--space-xl) 0;
+    --space-inset-default: var(--space-default) var(--space-default) var(--space-default) var(--space-default);
+    --space-inset-xs: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-xs);
+    --space-inset-s: var(--space-s) var(--space-s) var(--space-s) var(--space-s);
+    --space-inset-m: var(--space-m) var(--space-m) var(--space-m) var(--space-m);
+    --space-inset-l: var(--space-l) var(--space-l) var(--space-l) var(--space-l);
+    --space-inset-xl: var(--space-xl) var(--space-xl) var(--space-xl) var(--space-xl);
+}
+
+body {
+    font-size: var(--font-size-m);
+    font-family: "Microsoft New Tai Lue", Helvetica, sans-serif;
+}
+

@@ -1,0 +1,66 @@
+.switch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: inset 0 1px 2px #00000029, inset 0 -1px 2px #FFFFFF;
+}
+
+.switch__options {
+    position: relative;
+    margin: var(--space-xs);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    transition: 0.5s ease all;
+}
+
+.switch__options,
+.switch__options::before,
+.switch__option {
+    border-radius: inherit;
+}
+
+.switch__options::before {
+    --switch-option-width: 50%;
+    width: var(--switch-option-width);
+}
+
+.switch__option {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-xs) var(--space-s) 0 var(--space-s);
+    z-index: 2;
+    transition: inherit;
+}
+
+.switch__option:first-of-type {
+    color: var(--primary-font-color);
+}
+
+.switch__option:last-of-type {
+    color: var(--secondary-font-color);
+}
+
+.switch__options::before {
+    position: absolute;
+    content: '';
+    height: 100%;
+    left: 0;
+    background-color: var(--accent-color);
+    z-index: 1;
+    transition: inherit;
+}
+
+.switch-on .switch__options::before {
+    left: var(--switch-option-width);
+}
+
+.switch-on .switch__option:first-of-type {
+    color: var(--secondary-font-color);
+}
+
+.switch-on .switch__option:last-of-type {
+    color: var(--primary-font-color);
+}

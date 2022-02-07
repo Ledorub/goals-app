@@ -1,0 +1,12 @@
+.button-anchor {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px;
+    box-shadow: 0 2px 6px #00000029;
+    border-radius: 100vh;
+}
+
+.button-anchor_image {
+    background: center/80% no-repeat content-box;
+}
