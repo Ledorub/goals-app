@@ -149,7 +149,8 @@ STATIC_URL = '/static/'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'goals_app.backends.JWTAuthentication',
-    )
+    ),
+    'EXCEPTION_HANDLER': 'goals_app.exceptions.exception_handler'
 }
 
 # Celery

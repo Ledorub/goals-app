@@ -35,14 +35,14 @@ class AuthFieldsMixin(metaclass=FieldMixinMetaclass):
     def validate_username(self, value):
         if not value:
             raise serializers.ValidationError(
-                'An username is required to login.'
+                'An username is required.'
             )
         return value
 
     def validate_password(self, value):
         if not value:
             raise serializers.ValidationError(
-                'A password is required to login.'
+                'A password is required.'
             )
         return value
 
@@ -119,3 +119,4 @@ class UserSerializer(AuthFieldsMixin, serializers.ModelSerializer):
         if password:
             instance.set_password(password)
         return super().update(instance, validated_data)
+

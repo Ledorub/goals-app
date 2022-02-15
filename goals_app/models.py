@@ -45,7 +45,7 @@ class User(AbstractUser):  # TODO: Check that username is required during the re
         ]
     )
 
-    USERNAME_FIELD = 'email'  # TODO: Inherit from AbstractBaseUser?
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
     # TODO: Implement get_full_name and get_short_name.
 
