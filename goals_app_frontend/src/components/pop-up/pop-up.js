@@ -1,28 +1,66 @@
 import React from 'react'
 
+export const PopUpContext = React.createContext({})
+
+const fallbackUi = (
+    <>
+        <img src="./error.png" alt="error" style={{width: "15%"}} />
+        <p>Error happened. Please reload the page.</p>
+    </>
+)
+
+class ErrorBoundary extends React.Component {
+    state = {hasError: false}
+
+    componentDidCatch(error, errorInfo) {
+        this.setState({hasError: true})
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return fallbackUi
+        }
+        return this.props.children
+    }
+
+}
+
 export default class PopUp extends React.Component {
     state = {
-        isActive: false
+        isActive: false,
+        hasError: false
     }
 
     constructor(props) {
         super(props);
         this.hide = this.hide.bind(this)
-        this.popUpContext = React.createContext(this.hide)
+        this.handleError = this.handleError.bind(this)
+        this.contextValue = {
+            hide: this.hide,
+            showError: this.handleError
+        }
     }
 
     hide() {
         this.setState({isActive: false})
     }
 
+    handleError(err) {
+        this.setState({hasError: true})
+    }
+
     render() {
-        const context = this.popUpContext
         const popUp = (
             <div className="pop-up">
                 <div className="pop-up__content">
-                    <context.Provider value={this.hide}>
-                        {this.props.children}
-                    </context.Provider>
+                    <ErrorBoundary>
+                        {this.state.hasError
+                            ? fallbackUi
+                            : <PopUpContext.Provider value={this.contextValue}>
+                                {this.props.children}
+                            </PopUpContext.Provider>
+                        }
+                    </ErrorBoundary>
                 </div>
             </div>
         )

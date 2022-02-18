@@ -9,6 +9,7 @@
     font-size: inherit;
     height: 1.8em;
     margin-top: 0.2em;
+    padding: 0 var(--space-m);
     outline: unset;
     border: 2px solid var(--primary-font-color);
     border-radius: 100vw;

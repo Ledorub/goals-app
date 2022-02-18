@@ -1,5 +1,6 @@
 import React from "react";
 import {callHandlers} from "../../utils";
+import deepmerge from "deepmerge";
 
 
 export const MultiPageFormContext = React.createContext('')
@@ -16,13 +17,12 @@ export default class MultiPageForm extends React.Component {
         this.handleSubmit = this.handleSubmit.bind(this)
         this.contextValue = {
             formName: this.props.name,
-            method: this.props.method,
-            handleSubmit: this.handlePageSubmit
+            method: this.props.method
         }
     }
 
     handlePageSubmit(event, pageState) {
-        this.setState(pageState)
+        this.setState(state => deepmerge(state, pageState))  // TODO: Merge state with previous.
         this.nextStage()
     }
 
@@ -30,12 +30,17 @@ export default class MultiPageForm extends React.Component {
         this.setState(state => (++state.stage, state))
     }
 
-    handleSubmit(event) {
-        callHandlers(this.props.onSubmit, event)
+    handleSubmit(event, pageState) {
+        this.handlePageSubmit(null, pageState)
+        const data = deepmerge(this.state.formValues, pageState.formValues)
+        callHandlers(this.props.onSubmit, event, data)
     }
 
     render() {
         const page = this.props.children[this.state.stage]
+        const isLastPage = this.state.stage === this.props.children.length - 1
+        this.contextValue.handleSubmit = isLastPage ? this.handleSubmit : this.handlePageSubmit
+
         return (
             <MultiPageFormContext.Provider value={this.contextValue}>
                 {page}

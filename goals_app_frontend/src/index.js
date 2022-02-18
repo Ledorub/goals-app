@@ -9,9 +9,6 @@ import PopUp from "./components/pop-up/pop-up";
 import SignUpForm from "./components/sign-up-form/sign-up-form";
 
 
-export const BASE_URL = 'app/'
-
-
 class App extends React.Component {
 
 }

@@ -1,11 +1,17 @@
 import axios from 'axios'
-import {BASE_URL} from "./index";
+import {baseURL} from "./settings";
+import {objToFormData} from "./utils";
 
-const BASE_AUTH_URL = `${BASE_URL}/auth/`
+const baseAuthURL = new URL('auth/', baseURL)
 
 
 export default class Authenticator {
     constructor() {
+        if (Authenticator._instance) {
+            return Authenticator._instance
+        }
+        Authenticator._instance = this
+
         this.login = this.#saveCSRFWrapper(this.login)
         this.refreshToken = this.#saveCSRFWrapper(this.refreshToken)
     }
@@ -16,18 +22,27 @@ export default class Authenticator {
         }
     }
 
-    register() {
-        const url = `${BASE_AUTH_URL}/sign-up/`
-        return axios.get(url).then(response => response.data)
+    register(data) {
+        const url = new URL('sign-up/', baseAuthURL)
+        const formData = objToFormData(data)
+        return axios.post(
+            url,
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            }
+        ).then(response => ({status: response.status, data: response.data}))
     }
 
     login() {
-        const url = `${BASE_AUTH_URL}/sign-in/`
+        const url = new URL('sign-in/', baseAuthURL)
         return axios.get(url).then(response => response.data)
     }
 
     refreshToken() {
-        const url = `${BASE_AUTH_URL}/refresh-token/`
+        const url = new URL('refresh-token/', baseAuthURL)
         return axios.get(url).then(response => response.data)
     }
 }

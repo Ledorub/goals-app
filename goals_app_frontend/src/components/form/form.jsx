@@ -68,13 +68,16 @@ export default class Form extends React.Component {
     validateForm() {
         let formError = ''
 
-        try {
-            this.props.validators.forEach(v => v(this.state.formValues))
-        } catch (err) {
-            if (err instanceof FormValidationError) {
-                formError = err.message
-            } else {
-                throw err
+        const validators = this.props.validators
+        if (validators) {
+            try {
+                validators.forEach(v => v(this.state.formValues))
+            } catch (err) {
+                if (err instanceof FormValidationError) {
+                    formError = err.message
+                } else {
+                    throw err
+                }
             }
         }
         this.setState({formError})
@@ -100,7 +103,7 @@ export default class Form extends React.Component {
         const formError = this.state.formError
         return (
             <FormContext.Provider value={contextValue}>
-                <form method={this.props.method} onSubmit={this.handleSubmit}>
+                <form className="form" method={this.props.method} onSubmit={this.handleSubmit}>
                     <fieldset className="form__fields">
                         <legend className="form__name">{this.props.name}</legend>
                         {!!formError && <p>{formError}</p>}

@@ -32,3 +32,11 @@ export function callHandlers(handlers, ...args) {
         handlers.forEach(callback => callback(...args))
     }
 }
+
+export function objToFormData(obj) {
+    const formData = new FormData()
+    for (let [k, v] of Object.entries(obj)) {
+        formData.append(k, v)
+    }
+    return formData
+}

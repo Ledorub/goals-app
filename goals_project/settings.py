@@ -53,6 +53,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Set Allow-Origin to '*'
+if DEBUG:
+    MIDDLEWARE.insert(0, 'goals_app.middleware.CustomCorsMiddleware')
+
 ROOT_URLCONF = 'goals_project.urls'
 
 TEMPLATES = [
