@@ -26,6 +26,7 @@ class ErrorBoundary extends React.Component {
 }
 
 export default class PopUp extends React.Component {
+    popUpElement = React.createRef()
     state = {
         isActive: false,
         hasError: false
@@ -35,9 +36,25 @@ export default class PopUp extends React.Component {
         super(props);
         this.hide = this.hide.bind(this)
         this.handleError = this.handleError.bind(this)
+        this.handleOutsideClick = this.handleOutsideClick.bind(this)
         this.contextValue = {
             hide: this.hide,
             showError: this.handleError
+        }
+    }
+
+    componentDidMount() {
+        window.addEventListener('click', this.handleOutsideClick)
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('click', this.handleOutsideClick)
+    }
+
+    handleOutsideClick({target}) {
+        const popUpElement = this.popUpElement.current
+        if (!(target === popUpElement || popUpElement.contains(target))) {
+            this.hide()
         }
     }
 
@@ -51,7 +68,7 @@ export default class PopUp extends React.Component {
 
     render() {
         const popUp = (
-            <div className="pop-up">
+            <div className="pop-up" ref={this.popUpElement}>
                 <div className="pop-up__content">
                     <ErrorBoundary>
                         {this.state.hasError
