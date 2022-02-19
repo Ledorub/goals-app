@@ -1,0 +1,45 @@
+.main-header {
+    display: flex;
+    width: 100vw;
+    height: 10vh;
+    padding: 5.25% 7%;
+    justify-content: space-between;
+}
+
+.main-header__logo-container {
+    display: flex;
+    width: 30%;
+    justify-content: flex-end;
+}
+
+.main-header__actions-container {
+    display: flex;
+    flex-grow: 1;
+    height: 100%;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+ul {
+   display: block;
+    height: inherit;
+}
+.main-header__nav {
+    display: flex;
+    height: 100%;
+}
+.main-header__nav-items {
+    display: flex;
+}
+
+.main-header__action-item {
+    display: block;
+    height: inherit;
+    margin: auto var(--space-s)
+}
+
+/* Removes right margin from rightmost action item. */
+.main-header__nav-item:last-child,
+.main-header__actions-container > .main-header__action-item:only-child {
+    margin-right: 0;
+}

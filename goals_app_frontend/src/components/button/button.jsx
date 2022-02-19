@@ -1,4 +1,5 @@
 import React from "react";
+import classNames from "classnames";
 import {callHandlers} from "../../utils";
 
 
@@ -14,7 +15,13 @@ export default class Button extends React.Component {
 
     render() {
         return (
-            <button type={this.props.type} className='button button_accented' onClick={this.handleClick}>
+            <button
+                type={this.props.type}
+                className={classNames(
+                    'button button_accented',
+                    this.props.className
+                )}
+                onClick={this.handleClick}>
                 {this.props.children}
             </button>
         )

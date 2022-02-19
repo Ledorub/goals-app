@@ -1,4 +1,5 @@
 import React from 'react'
+import {callHandlers} from "../../utils";
 
 export const PopUpContext = React.createContext({})
 
@@ -28,7 +29,7 @@ class ErrorBoundary extends React.Component {
 export default class PopUp extends React.Component {
     popUpElement = React.createRef()
     state = {
-        isActive: false,
+        isActive: this.props.isActive || false,
         hasError: false
     }
 
@@ -36,7 +37,7 @@ export default class PopUp extends React.Component {
         super(props);
         this.hide = this.hide.bind(this)
         this.handleError = this.handleError.bind(this)
-        this.handleOutsideClick = this.handleOutsideClick.bind(this)
+        this.hideOnOutsideClick = this.hideOnOutsideClick.bind(this)
         this.contextValue = {
             hide: this.hide,
             showError: this.handleError
@@ -44,14 +45,15 @@ export default class PopUp extends React.Component {
     }
 
     componentDidMount() {
-        window.addEventListener('click', this.handleOutsideClick)
+        // Without timeout callback is fired on click that opens pop up (closes immediately).
+        setTimeout(() => window.addEventListener('click', this.hideOnOutsideClick))
     }
 
     componentWillUnmount() {
-        window.removeEventListener('click', this.handleOutsideClick)
+        window.removeEventListener('click', this.hideOnOutsideClick)
     }
 
-    handleOutsideClick({target}) {
+    hideOnOutsideClick({target}) {
         const popUpElement = this.popUpElement.current
         if (!(target === popUpElement || popUpElement.contains(target))) {
             this.hide()
@@ -60,6 +62,7 @@ export default class PopUp extends React.Component {
 
     hide() {
         this.setState({isActive: false})
+        callHandlers(this.props.onHide)
     }
 
     handleError(err) {

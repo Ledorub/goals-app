@@ -8,5 +8,7 @@
 }
 
 .button-anchor_image {
+    height: 100%;
+    aspect-ratio: 1/1;
     background: center/80% no-repeat content-box;
 }

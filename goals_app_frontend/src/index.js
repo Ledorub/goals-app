@@ -3,23 +3,7 @@ import ReactDOM from 'react-dom'
 import {BrowserRouter} from 'react-router-dom'
 
 import './index.css'
-import Switch from './components/switch/switch'
-import TaskList from "./components/task-list/task-list";
-import PopUp from "./components/pop-up/pop-up";
-import SignUpForm from "./components/sign-up-form/sign-up-form";
-
-
-class App extends React.Component {
-
-}
-
-class Page extends React.Component {
-    render() {
-        return (
-            <div className="page"></div>
-        )
-    }
-}
+import App from "./App";
 
 const tasks = [
     {
@@ -50,9 +34,7 @@ const tasks = [
 
 ReactDOM.render(
     <BrowserRouter>
-        <PopUp>
-            <SignUpForm />
-        </PopUp>
+        <App />
     </BrowserRouter>,
     document.querySelector('#root')
 )

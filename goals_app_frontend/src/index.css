@@ -8,7 +8,8 @@
 @import "components/form-input/form-input.css";
 @import "components/button/button.css";
 @import "components/button-anchor/button-anchor.css";
-
+@import "components/navbar/navbar.css";
+@import "components/logo/logo.css";
 
 *,
 ::before,

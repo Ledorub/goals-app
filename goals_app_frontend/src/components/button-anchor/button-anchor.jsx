@@ -1,17 +1,24 @@
 import React from "react";
 import classNames from "classnames";
+import {NavLink} from "react-router-dom";
 
 
 export default class ButtonAnchor extends React.Component {
     render() {
         return (
-            <a className={classNames("button-anchor", {
-                'button-anchor_image': this.props.backgroundImage
-            })}
-               href=""
-               style={{"background-image": `url(${this.props.backgroundImage})`}}>
+            <NavLink
+                to={this.props.href}
+                className={classNames(
+                    "button-anchor",
+                    this.props.className,
+                    {
+                        'button-anchor_image': this.props.backgroundImage,
+                    }
+                )}
+                style={{backgroundImage: `url(${this.props.backgroundImage})`}}
+            >
                 {this.props.children}
-            </a>
+            </NavLink>
         )
     }
 }
