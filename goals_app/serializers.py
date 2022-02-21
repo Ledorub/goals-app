@@ -114,6 +114,9 @@ class UserSerializer(AuthFieldsMixin, serializers.ModelSerializer):
             'email', 'username', 'password', 'first_name', 'last_name'
         )
 
+    def create(self, validated_data):
+        return self.Meta.model.objects.create_user(**validated_data)
+
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
         if password:
