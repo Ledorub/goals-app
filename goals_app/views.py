@@ -10,12 +10,14 @@ from goals_app import serializers
 
 
 class RegistrationView(generics.CreateAPIView):
+    authentication_classes = []
     queryset = models.User.objects.all()
     serializer_class = serializers.UserSerializer
     renderer_classes = [UserJSONRenderer]
 
 
 class LoginView(APIView):
+    authentication_classes = []
     serializer_class = serializers.LoginSerializer
     renderer_classes = [UserJSONRenderer]
 
