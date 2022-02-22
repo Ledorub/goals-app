@@ -53,7 +53,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Set Allow-Origin to '*'
+# Set Allow-Origin to '*' and expose X-XSRF-TOKEN header.
 if DEBUG:
     MIDDLEWARE.insert(0, 'goals_app.middleware.CustomCorsMiddleware')
 

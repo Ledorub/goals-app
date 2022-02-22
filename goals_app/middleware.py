@@ -7,5 +7,6 @@ class CustomCorsMiddleware:
         response['Access-Control-Allow-Origin'] = '*'
         response['Access-Control-Allow-Headers'] = '*'
         response['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS'
+        response['Access-Control-Expose-Headers'] = 'X-XSRF-TOKEN'
 
         return response
