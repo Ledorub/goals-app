@@ -18,7 +18,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
         csrf_token = request.headers.get('X-XSRF-TOKEN', None)
 
         if not access_token:
-            AuthenticationFailed('No token was provided')
+            raise AuthenticationFailed('No token was provided')
 
         return self._authenticate_credentials(access_token, csrf_token)
 
