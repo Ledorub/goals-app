@@ -9,9 +9,7 @@ from goals_app import models
 class PasswordField(serializers.CharField):
     def __init__(self, **kwargs):
         super().__init__(
-            min_length=settings.MIN_PASSWORD_LENGTH,
-            max_length=128,
-            write_only=True,
+            write_only=kwargs.pop('write_only', True),
             **kwargs
         )
 
@@ -29,22 +27,12 @@ class FieldMixinMetaclass(serializers.SerializerMetaclass):
 
 
 class AuthFieldsMixin(metaclass=FieldMixinMetaclass):
-    username = serializers.CharField(max_length=150)
-    password = PasswordField()
-
-    def validate_username(self, value):
-        if not value:
-            raise serializers.ValidationError(
-                'An username is required.'
-            )
-        return value
-
-    def validate_password(self, value):
-        if not value:
-            raise serializers.ValidationError(
-                'A password is required.'
-            )
-        return value
+    email = serializers.EmailField(required=True)
+    password = PasswordField(
+        min_length=settings.MIN_PASSWORD_LENGTH,
+        max_length=128,
+        required=True
+    )
 
 
 class CounterSerializer(serializers.ModelSerializer):
@@ -81,13 +69,13 @@ class TaskSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(AuthFieldsMixin, serializers.Serializer):
-    email = serializers.CharField(max_length=254, read_only=True)  # TODO: Remove RO after USERNAME_FIELD change.
+    password = PasswordField()
 
     def validate(self, attrs):
-        username = attrs.get('username', None)
+        email = attrs.get('email', None)
         password = attrs.get('password', None)
 
-        user = authenticate(username=username, password=password)
+        user = authenticate(username=email, password=password)
         if not user:
             raise serializers.ValidationError(
                 'A user with corresponding credentials was not found.'
