@@ -1,6 +1,6 @@
 import axios from 'axios'
 import {baseURL} from "./settings";
-import {objToFormData} from "./utils";
+import {objToFormData, isObjEmpty} from "./utils";
 
 const baseAuthURL = new URL('auth/', baseURL)
 
@@ -16,14 +16,15 @@ export default class Authenticator {
         this.refreshToken = this.#saveCSRFWrapper(this.refreshToken)
     }
 
-    #saveCSRFWrapper(func) {
-        return function (...args) {
-            func(args).then(response => localStorage.setItem('csrf_token', response.headers['X-XSRF-TOKEN']))
+    postForm(url, data) {
+        if (!url) {
+            throw new Error('"url" value is required to post form.')
         }
-    }
 
-    register(data) {
-        const url = new URL('sign-up/', baseAuthURL)
+        if (isObjEmpty(data)) {
+            throw new Error('"data" value is required to post form.')
+        }
+
         const formData = objToFormData(data)
         return axios.post(
             url,
@@ -33,12 +34,36 @@ export default class Authenticator {
                     'Content-Type': 'multipart/form-data'
                 }
             }
-        ).then(response => ({status: response.status, data: response.data}))
+        ).then(response => ({
+            status: response.status,
+            headers: response.headers,
+            data: response.data
+        }))
     }
 
-    login() {
+    #saveCSRFWrapper(func) {
+        return function (...args) {
+            return func.apply(this, args)
+                .then(response => {
+                    const csrfToken = response.headers['x-xsrf-token']
+                    csrfToken && localStorage.setItem('csrf_token', csrfToken)
+                    return response
+                })
+                .then(v => {
+                    console.log(v)
+                    return v
+                })
+        }
+    }
+
+    register(data) {
+        const url = new URL('sign-up/', baseAuthURL)
+        return this.postForm(url, data)
+    }
+
+    login(data) {
         const url = new URL('sign-in/', baseAuthURL)
-        return axios.get(url).then(response => response.data)
+        return this.postForm(url, data)
     }
 
     refreshToken() {

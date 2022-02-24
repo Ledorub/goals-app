@@ -40,3 +40,10 @@ export function objToFormData(obj) {
     }
     return formData
 }
+
+export function isObjEmpty(obj) {
+    for (const k in obj) {
+        return false
+    }
+    return true
+}
