@@ -7,7 +7,6 @@ import {formFieldValidator, formValidator} from "../form/form";
 import Authenticator from "../../authenticator";
 import {minLengthValidator} from "../../validators";
 import {PopUpContext} from "../pop-up/pop-up";
-import deepmerge from "deepmerge";
 
 
 export default class SignUpForm extends React.Component {
