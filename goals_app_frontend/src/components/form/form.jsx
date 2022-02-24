@@ -38,9 +38,6 @@ export function formFieldValidator(msg) {
     return genericFormValidator(msg, FormFieldValidationError)
 }
 
-
-// TODO: Fix fields never get valid after error.
-// Better to rewrite all error handling from scratch.
 export default class Form extends React.Component {
     constructor(props) {
         super(props);
@@ -89,7 +86,7 @@ export default class Form extends React.Component {
         event.preventDefault()
         const isValid = this.validateForm()
         if (isValid) {
-            callHandlers(this.props.onSubmit, event, this.state)
+            callHandlers(this.props.onSubmit, event, this.state.formValues)
         }
     }
 

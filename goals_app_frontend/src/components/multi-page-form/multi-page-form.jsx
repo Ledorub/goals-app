@@ -22,7 +22,7 @@ export default class MultiPageForm extends React.Component {
     }
 
     handlePageSubmit(event, pageState) {
-        this.setState(state => deepmerge(state, pageState))  // TODO: Merge state with previous.
+        this.setState(state => deepmerge(state, pageState))
         this.nextStage()
     }
 
@@ -32,7 +32,7 @@ export default class MultiPageForm extends React.Component {
 
     handleSubmit(event, pageState) {
         this.handlePageSubmit(null, pageState)
-        const data = deepmerge(this.state.formValues, pageState.formValues)
+        const data = deepmerge(this.state, pageState)
         callHandlers(this.props.onSubmit, event, data)
     }
 
