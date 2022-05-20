@@ -1,0 +1,8 @@
+.header {
+    font-size: var(--font-size-xl);
+    text-transform: capitalize;
+}
+
+.header::first-letter {
+    color: var(--accent-color);
+}
