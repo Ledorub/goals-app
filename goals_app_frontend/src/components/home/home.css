@@ -1,0 +1,22 @@
+.feature-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.feature-list__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.feature-list__title {
+    font-size: var(--font-size-m);
+}
+
+.feature-list__description {
+    color: var(--secondary-font-color);
+}
+
+.feature-list__img {
+    width: 90%;
+}
