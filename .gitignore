@@ -16,11 +16,12 @@ __pycache__
 # Project
 *.rtf
 goals_project/secret.py
+goals_app/users.txt
+*[.mdj, .xd]
 
 # goals_app
 goals_app/icons
 goals_app/images
-goals_app/*[.mdj, .xd]
 goals_app/debug*
 
 # Packaging
